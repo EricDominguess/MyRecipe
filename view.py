@@ -39,7 +39,7 @@ class View:
 
     #desenhando a tela de login
     def login_screen(self):
-        label = tk.Label(self.root, bg= "#FFFFFF", text="Bem vindo ao MyRecipe", font=("Segoe UI", 22, "bold"))
+        label = tk.Label(self.root, bg= "#FFFFFF", text="MyRecipe", font=("Segoe UI", 22, "bold"))
         label.pack(pady=20)
 
         container = tk.Frame(self.root, bg="#FFFFFF", padx=30, pady=30)
