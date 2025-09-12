@@ -265,6 +265,7 @@ class View:
         )
         back_btn.pack(fill="x", pady=(10,0))
 
+    #desenhando tela de detalhes da receita
     def full_recipe_screen(self, recipe_id):
         label = tk.Label(self.root, bg= "#FFFFFF", text="Detalhes da Receita", font=("Segoe UI", 22, "bold"))
         label.pack(pady=20)
