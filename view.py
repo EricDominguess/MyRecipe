@@ -545,7 +545,4 @@ class View:
             container, text="Voltar para o Menu Principal", font=("Segoe UI", 14), bg="#f44336", fg="#ffffff",
             command=lambda: self.show_screen(self.main_menu_screen)
         )
-        back_btn.pack(fill="x", pady=(10,0))
-        
-if __name__ == "__main__":
-        view = View(None)    
+        back_btn.pack(fill="x", pady=(10,0))  

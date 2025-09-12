@@ -1,7 +1,5 @@
-from controller import *
-from view import *
-from model import *
+from controller import Controller
 
-class main:
-    def main():
-        pass
+if __name__ == "__main__":
+    app = Controller()
+    app.run()
