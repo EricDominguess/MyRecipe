@@ -46,7 +46,7 @@ class View:
         screen_func(*args, **kwargs)
 
     #desenhando a tela de login
-    def login_screen(self):  # Se a tela já estiver limpa, não faz nada
+    def login_screen(self): 
 
         label = tk.Label(self.root, bg= "#FFFFFF", text="MyRecipe", font=("Segoe UI", 22, "bold"))
         label.pack(pady=20)
