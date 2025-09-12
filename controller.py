@@ -7,4 +7,4 @@ class Controller:
         self.view = View(self)
 
     def run(self):
-        self.view.login_screen()
+        self.view.run()

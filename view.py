@@ -6,8 +6,16 @@ class View:
         self.controller = controller
         self.root.title("My Recipe App")
         self.window_specs()
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def run(self): 
         self.login_screen()
         self.root.mainloop()
+
+    def on_close(self):
+        print("Fechando a aplicação...")
+        if self.root.winfo_exists():
+            self.root.destroy()
 
     #função para definir as especificações da janela e posição
     def window_specs(self):
@@ -38,7 +46,8 @@ class View:
         screen_func(*args, **kwargs)
 
     #desenhando a tela de login
-    def login_screen(self):
+    def login_screen(self):  # Se a tela já estiver limpa, não faz nada
+
         label = tk.Label(self.root, bg= "#FFFFFF", text="MyRecipe", font=("Segoe UI", 22, "bold"))
         label.pack(pady=20)
 
