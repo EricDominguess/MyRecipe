@@ -296,6 +296,13 @@ class View:
             value_label = tk.Label(container, text=value, font=("Segoe UI", 14), bg="#F5F5F5", fg="#000000", justify="left")
             value_label.pack(fill="x", pady=(0,15))
 
+        # Botão Excluir Receita
+        delete_btn = tk.Button(
+            container, text="Excluir Receita", font=("Segoe UI", 14), bg="#f44336", fg="#ffffff",
+            command=lambda: self.show_screen(self.recipes_screen)
+        )
+        delete_btn.pack(fill="x", pady=(10,0))
+
         # Botão Voltar para a Tela de Receitas
         back_btn = tk.Button(
             container, text="Voltar para Receitas", font=("Segoe UI", 14), bg="#f44336", fg="#ffffff",
