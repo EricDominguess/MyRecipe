@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 class View:
     def __init__(self, controller):
@@ -16,6 +17,33 @@ class View:
         print("Fechando a aplicação...")
         if self.root.winfo_exists():
             self.root.destroy()
+
+    #função para adicionar receita
+    def handle_add_recipe(self, name_entry, ingredients_text, instructions_text):
+        nome = name_entry.get()
+        ingredientes = ingredients_text.get("1.0", tk.END).strip()
+        instrucoes = instructions_text.get("1.0", tk.END).strip()
+
+        # A validação para conferir se todos os campos foram preenchidos
+        if not nome or not ingredientes or not instrucoes:
+            messagebox.showerror("Erro de Validação", "Todos os campos devem ser preenchidos!")
+            return
+
+        #Chamando o controller passando os dados
+        try:
+            recipe_id = self.controller.create_recipe_controller(nome, ingredientes, instrucoes)
+            
+            if recipe_id:
+                messagebox.showinfo("Sucesso", f"Receita '{nome}' adicionada com sucesso!")
+                # Limpa os campos e volta para o menu
+                name_entry.delete(0, tk.END)
+                ingredients_text.delete("1.0", tk.END)
+                instructions_text.delete("1.0", tk.END)
+                self.show_screen(self.main_menu_screen)
+            else:
+                messagebox.showerror("Erro no Banco", "Não foi possível adicionar a receita.")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Ocorreu um erro ao adicionar a receita: {e}")
 
     #função para definir as especificações da janela e posição
     def window_specs(self):
@@ -96,11 +124,11 @@ class View:
         edit_recipe_btn.pack(fill="x", pady=(10,0))
 
         # Botão Sair
-        logout_btn = tk.Button(
+        exit_btn = tk.Button(
             container, text="Sair", font=("Segoe UI", 14), bg="#f44336", fg="#ffffff",
-            command=lambda: self.show_screen(self.login_screen)
+            command=lambda: self.root.destroy()
         )
-        logout_btn.pack(fill="x", pady=(10,0))
+        exit_btn.pack(fill="x", pady=(10,0))
     
     #desenhando a tela de receitas
     def recipes_screen(self):
@@ -208,7 +236,8 @@ class View:
         # Botão Adicionar Receita
         add_btn = tk.Button(
             container, text="Adicionar Receita", font=("Segoe UI", 14), bg="#4CAF50", fg="#ffffff",
-            command=lambda: self.show_screen(self.main_menu_screen)
+            # E o comando dele CHAMA o outro método da classe
+            command=lambda: self.handle_add_recipe(name_entry, ingredients_text, instructions_text)
         )
         add_btn.pack(fill="x", pady=(10,0))
 
@@ -218,51 +247,7 @@ class View:
             command=lambda: self.show_screen(self.main_menu_screen)
         )
         back_btn.pack(fill="x", pady=(10,0))
-        
-    #desenhando a tela de editar receita
-    def edit_recipe_screen(self, recipe_id):
-        label = tk.Label(self.root, bg= "#FFFFFF", text="Edite sua Receita", font=("Segoe UI", 22, "bold"))
-        label.pack(pady=20)
 
-        container = tk.Frame(self.root, bg="#FFFFFF", padx=30, pady=30)
-        container.pack(pady=40)
-
-        #campo id receita (apenas para demonstração, pode ser oculto ou removido)
-        id_label = tk.Label(container, text=f"ID da Receita: {recipe_id}", font=("Segoe UI", 14), bg="#FFFFFF", fg="#000000")
-        id_label.pack(anchor="w", pady=(0,15))
-
-        #campo de nome da receita
-        name_label = tk.Label(container, text="Nome da Receita:", font=("Segoe UI", 14), bg="#FFFFFF", fg="#000000")
-        name_label.pack(anchor="w", pady=(0,5))
-        name_entry = tk.Entry(container, bg= "#F5F5F5", font=("Segoe UI", 14))
-        name_entry.pack(fill="x", pady=(0,15))
-
-        #campo de ingredientes
-        ingredients_label = tk.Label(container, text="Ingredientes:", font=("Segoe UI", 14), bg="#FFFFFF", fg="#000000")
-        ingredients_label.pack(anchor="w", pady=(0,5))
-        ingredients_text = tk.Text(container, bg= "#F5F5F5", font=("Segoe UI", 14), height=5)
-        ingredients_text.pack(fill="x", pady=(0,15))
-
-        #campo de instruções
-        instructions_label = tk.Label(container, text="Instruções:", font=("Segoe UI", 14), bg="#FFFFFF", fg="#000000")
-        instructions_label.pack(anchor="w", pady=(0,5))
-        instructions_text = tk.Text(container, bg= "#F5F5F5", font=("Segoe UI", 14), height=5)
-        instructions_text.pack(fill="x", pady=(0,15))
-
-        # Botão Salvar Alterações
-        save_btn = tk.Button(
-            container, text="Salvar Alterações", font=("Segoe UI", 14), bg="#4CAF50", fg="#ffffff",
-            command=lambda: self.show_screen(self.main_menu_screen)
-        )
-        save_btn.pack(fill="x", pady=(10,0))
-
-        # Botão Voltar para o Menu Principal
-        back_btn = tk.Button(
-            container, text="Voltar para o Menu Principal", font=("Segoe UI", 14), bg="#f44336", fg="#ffffff",
-            command=lambda: self.show_screen(self.main_menu_screen)
-        )
-        back_btn.pack(fill="x", pady=(10,0))
-    
     #desenhando a tela de plano de refeição
     def add_meal_plan_screen(self):
         label = tk.Label(self.root, bg= "#FFFFFF", text="Adicione Seu Plano de Refeição", font=("Segoe UI", 22, "bold"))
