@@ -108,7 +108,7 @@ class View:
     def window_specs(self):
             #Definindo o tamanho
             width = 1200
-            height = 1000
+            height = 800
 
             background_color = "#ffffff"
             self.root.configure(bg=background_color)
