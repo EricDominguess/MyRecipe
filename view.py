@@ -417,42 +417,60 @@ class View:
         label = tk.Label(self.root, bg="#FFFFFF", text="Calendário de Plano de Refeição", font=("Segoe UI", 22, "bold"))
         label.pack(pady=20)
 
-        container = tk.Frame(self.root, bg="#FFFFFF", padx=30, pady=30)
-        container.pack(pady=40)
+        # O container principal para a tabela e o botão
+        container = tk.Frame(self.root, bg="#FFFFFF", padx=10, pady=10)
+        container.pack(pady=10, padx=10, fill="both", expand=True)
 
-        dias = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"]
-        refeicoes = ["Café da manhã", "Almoço", "Jantar"]
+        # Busca e organiza os dados do banco
+        plano_semanal = {}
+        try:
+            meal_plans_from_db = self.controller.list_meal_plans_controller()
+            for plan in meal_plans_from_db:
+                dia = plan.get("dia_da_semana")
+                refeicoes_data = plan.get("refeicoes", {})
+                plano_semanal[dia] = [
+                    refeicoes_data.get("cafe_da_manha", ""),
+                    refeicoes_data.get("almoco", ""),
+                    refeicoes_data.get("jantar", "")
+                ]
+        except Exception as e:
+            messagebox.showerror("Erro de Conexão", f"Não foi possível carregar os planos de refeição: {e}")
+            self.show_screen(self.main_menu_screen) 
+            return
 
-        # Exemplo de plano de refeições (substitua por seus dados)
-        plano = {
-            "Segunda":    ["Ovos mexidos", "Frango grelhado", "Sopa de legumes"],
-            "Terça":      ["Pão integral", "Peixe assado", "Salada Caesar"],
-            "Quarta":     ["Iogurte", "Carne moída", "Bolo de chocolate"],
-            "Quinta":     ["Frutas", "Macarrão", "Frango grelhado"],
-            "Sexta":      ["Tapioca", "Salada", "Sopa de legumes"],
-            "Sábado":     ["Panqueca", "Bife", "Pizza caseira"],
-            "Domingo":    ["Cereal", "Lasanha", "Sanduíche natural"],
-        }
+        # Monta a grade (Grid) com os dados
+        dias_header = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"]
+        dias_keys = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
+        refeicoes_rows = ["Café da manhã", "Almoço", "Jantar"]
 
-        # Cabeçalho dos dias
-        for col, dia in enumerate(dias):
-            tk.Label(container, text=dia, font=("Segoe UI", 12, "bold"), bg="#E0E0E0", width=16, borderwidth=1, relief="solid").grid(row=0, column=col, sticky="nsew")
+        # Cabeçalho dos dias da semana 
+        for col, dia_txt in enumerate(dias_header):
+            tk.Label(container, text=dia_txt, font=("Segoe UI", 11, "bold"), bg="#E0E0E0", relief="solid", borderwidth=1).grid(row=0, column=col + 1, sticky="nsew")
 
-        # Linhas das refeições
-        for row, refeicao in enumerate(refeicoes, start=1):
-            for col, dia in enumerate(dias):
-                texto = plano[dia][row-1] if dia in plano else ""
-                tk.Label(container, text=texto, font=("Segoe UI", 12), bg="#F5F5F5", width=16, height=2, borderwidth=1, relief="solid").grid(row=row, column=col, sticky="nsew")
+        # Cabeçalho das refeições
+        for row, refeicao_txt in enumerate(refeicoes_rows):
+            tk.Label(container, text=refeicao_txt, font=("Segoe UI", 11, "bold"), bg="#E0E0E0", relief="solid", borderwidth=1).grid(row=row + 1, column=0, sticky="nsew")
 
-        # Ajusta o grid para expandir
-        for col in range(len(dias)):
-            container.grid_columnconfigure(col, weight=1)
-        for row in range(len(refeicoes)+1):
-            container.grid_rowconfigure(row, weight=1)
+        # Preenchimento das células da tabela
+        for row_idx in range(len(refeicoes_rows)):
+            for col_idx in range(len(dias_keys)):
+                dia_key = dias_keys[col_idx]
+                plano_do_dia = plano_semanal.get(dia_key)
+                
+                texto_refeicao = ""
+                if plano_do_dia:
+                    texto_refeicao = plano_do_dia[row_idx]
 
-        # Botão Voltar
+                tk.Label(container, text=texto_refeicao, font=("Segoe UI", 10), wraplength=100, relief="solid", borderwidth=1).grid(row=row_idx + 1, column=col_idx + 1, sticky="nsew")
+
+        # Configuração para que a tabela seja responsiva de acordo com o tamanho da janela
+        for i in range(len(dias_header) + 1):
+            container.grid_columnconfigure(i, weight=1)
+        for i in range(len(refeicoes_rows) + 1):
+            container.grid_rowconfigure(i, weight=1)
+        
         back_btn = tk.Button(
-            container, text="Voltar", font=("Segoe UI", 14), bg="#f44336", fg="#ffffff",
+            container, text="Voltar para o Menu Principal", font=("Segoe UI", 14), bg="#f44336", fg="#ffffff",
             command=lambda: self.show_screen(self.main_menu_screen)
         )
-        back_btn.grid(row=len(refeicoes)+1, column=0, columnspan=7, sticky="ew", pady=(20,0))
+        back_btn.grid(row=len(refeicoes_rows) + 2, column=0, columnspan=len(dias_header) + 1, sticky="ew", pady=(10,0))

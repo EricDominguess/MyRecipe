@@ -45,5 +45,5 @@ class Controller:
         else:
             return "failed"
     
-    def get_meal_plan_controller(self, meal_plan_id):   
-        return self.model.get_meal_plan(meal_plan_id)
+    def list_meal_plans_controller(self):
+        return self.model.list_meal_plans()

@@ -88,6 +88,6 @@ class MyRecipeModel:
         
         # Retornamos o objeto de resultado para o controller poder inspecioná-lo
         return result
-    
-    def get_meal_plan(self, meal_plan_id):
-        return self.db["meal_plans"].find_one({"_id": meal_plan_id})
+        
+    def list_meal_plans(self):
+        return list(self.db["meal_plans"].find())
