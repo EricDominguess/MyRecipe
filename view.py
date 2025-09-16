@@ -18,7 +18,7 @@ class View:
         if self.root.winfo_exists():
             self.root.destroy()
 
-    #função para adicionar receita
+    # Função para adicionar receita
     def handle_add_recipe(self, name_entry, ingredients_text, instructions_text):
         nome = name_entry.get()
         ingredientes = ingredients_text.get("1.0", tk.END).strip()
@@ -45,7 +45,7 @@ class View:
         except Exception as e:
             messagebox.showerror("Erro", f"Ocorreu um erro ao adicionar a receita: {e}")
 
-    #função para adicionar plano de refeição
+    # Função para adicionar plano de refeição
     def handle_add_meal_plan(self, day_var, cafe_var, almoco_var, jantar_var):
         dia = day_var.get()
         cafe = cafe_var.get()
@@ -76,7 +76,7 @@ class View:
         except Exception as e:
             messagebox.showerror("Erro", f"Ocorreu um erro ao salvar o plano: {e}")
 
-    #função para deletar receita
+    # Função para deletar receita
     def handle_delete_recipe(self, recipe_id, recipe_name):
         # Pedir confirmação ao usuário antes de excluir
         confirm = messagebox.askyesno(
@@ -104,7 +104,67 @@ class View:
             except Exception as e:
                 messagebox.showerror("Erro de Execução", f"Ocorreu um erro ao tentar excluir a receita: {e}")
 
-    #função para definir as especificações da janela e posição
+    # Função para atualizar receita
+    def handle_update_recipe(self, name_entry, ingredients_text, instructions_text):
+        # Pega o ID que guardamos quando a receita foi selecionada
+        recipe_id = self.currently_editing_recipe_id
+        if not recipe_id:
+            messagebox.showerror("Erro", "Nenhuma receita selecionada para atualizar.")
+            return
+
+        # Pega os dados (possivelmente editados) dos campos
+        new_name = name_entry.get()
+        new_ingredients = ingredients_text.get("1.0", tk.END).strip()
+        new_instructions = instructions_text.get("1.0", tk.END).strip()
+
+        if not new_name:
+            messagebox.showerror("Validação", "O nome da receita não pode ficar em branco.")
+            return
+
+        try:
+            # Chama o controller para efetuar a atualização
+            modified_count = self.controller.update_recipe_controller(recipe_id, new_name, new_ingredients, new_instructions)
+
+            if modified_count > 0:
+                messagebox.showinfo("Sucesso", f"Receita '{new_name}' atualizada com sucesso!")
+            else:
+                messagebox.showinfo("Informação", "Nenhuma alteração foi detectada.")
+            
+            # Volta para o menu principal
+            self.show_screen(self.main_menu_screen)
+
+        except Exception as e:
+            messagebox.showerror("Erro", f"Ocorreu um erro ao atualizar a receita: {e}")
+
+    # Função para preencher os campos de edição quando uma receita é selecionada
+    def on_recipe_selected_for_edit(self, selected_var, name_entry, ingredients_text, instructions_text, save_btn):
+        selected_name = selected_var.get()
+        
+        # Encontra a receita completa na lista
+        recipe_data = next((r for r in self.recipes_for_editing if r.get("Nome") == selected_name), None)
+
+        if recipe_data:
+            # Guarda o ID da receita
+            self.currently_editing_recipe_id = recipe_data.get('_id')
+            
+            # Limpa os campos antes de inserir o novo texto
+            name_entry.delete(0, tk.END)
+            ingredients_text.delete("1.0", tk.END)
+            instructions_text.delete("1.0", tk.END)
+            
+            # Preenche os campos com os dados da receita
+            name_entry.insert(0, recipe_data.get("Nome", ""))
+            ingredients_text.insert("1.0", recipe_data.get("Ingredientes", ""))
+            instructions_text.insert("1.0", recipe_data.get("Instrucoes", ""))
+            
+            # Habilita o botão "Salvar"
+            save_btn.config(state="normal")
+        else:
+            # Se algo der errado desabilita o botão
+            save_btn.config(state="disabled")
+            self.currently_editing_recipe_id = None
+
+    # Função para definir as especificações da janela e posição
     def window_specs(self):
             #Definindo o tamanho
             width = 1200
@@ -124,7 +184,7 @@ class View:
             #Definindo a geometria da janela
             self.root.geometry(f"{width}x{height}+{x}+{y}")
 
-    #função para transição de telas
+    # Função para transição de telas
     def show_screen(self, screen_func, *args, **kwargs):
          # Limpando a tela atual
         for widget in self.root.winfo_children():
@@ -132,7 +192,7 @@ class View:
          # Chamando a função da tela desejada
         screen_func(*args, **kwargs)
 
-    #desenhando a tela principal
+    # Desenhando a tela principal
     def main_menu_screen(self):
         label = tk.Label(self.root, bg= "#FFFFFF", text="Bem vindo ao MyRecipe", font=("Segoe UI", 22, "bold"))
         label.pack(pady=20)
@@ -171,7 +231,7 @@ class View:
         # Botão Editar Receita
         edit_recipe_btn = tk.Button(
             container, text="Editar Receita", font=("Segoe UI", 14), bg="#9C27B0", fg="#ffffff",
-            command=lambda: self.show_screen(self.edit_recipe_screen, recipe_id=1)  # Exemplo com recipe_id fixo
+            command=lambda: self.show_screen(self.edit_recipe_screen)  # Exemplo com recipe_id fixo
         )
         edit_recipe_btn.pack(fill="x", pady=(10,0))
 
@@ -182,7 +242,7 @@ class View:
         )
         exit_btn.pack(fill="x", pady=(10,0))
     
-    #desenhando a tela de receitas
+    # Desenhando a tela de receitas
     def recipes_screen(self):
         label = tk.Label(self.root, bg= "#FFFFFF", text="Suas Receitas", font=("Segoe UI", 22, "bold"))
         label.pack(pady=20)
@@ -232,7 +292,7 @@ class View:
         )
         back_btn.pack(fill="x", pady=(10,0))
 
-    #desenhando tela de detalhes da receita
+    # Desenhando tela de detalhes da receita
     def full_recipe_screen(self, recipe_id):
         label = tk.Label(self.root, bg= "#FFFFFF", text="Detalhes da Receita", font=("Segoe UI", 22, "bold"))
         label.pack(pady=20)
@@ -289,11 +349,72 @@ class View:
         )
         back_btn.pack(fill="x", pady=(10,0))
 
-    #desenhando a tela de editar receita
-    def edit_recipe_screen(self, recipe_id):
-        pass
+    # Desenhando a tela de editar receita
+    def edit_recipe_screen(self):
+        # Busca as receitas para o menu de seleção
+        try:
+            self.recipes_for_editing = self.controller.list_recipes_controller()
+            recipe_names = [recipe.get("Nome", "") for recipe in self.recipes_for_editing]
+            if not recipe_names:
+                recipe_names = ["Nenhuma receita encontrada"]
+        except Exception as e:
+            messagebox.showerror("Erro", f"Não foi possível carregar as receitas: {e}")
+            self.show_screen(self.main_menu_screen)
+            return
 
-    #desenhando a tela de adicionar receita
+        # Desenha os componentes da tela
+        label = tk.Label(self.root, bg="#FFFFFF", text="Edite sua Receita", font=("Segoe UI", 22, "bold"))
+        label.pack(pady=20)
+
+        container = tk.Frame(self.root, bg="#FFFFFF", padx=30, pady=30)
+        container.pack(pady=20, fill="both", expand=True)
+
+        # Menu de Seleção 
+        select_label = tk.Label(container, text="Selecione a Receita para Editar:", font=("Segoe UI", 14), bg="#FFFFFF")
+        select_label.pack(anchor="w")
+        
+        selected_recipe_var = tk.StringVar()
+        select_menu = tk.OptionMenu(container, selected_recipe_var, *recipe_names)
+        select_menu.config(font=("Segoe UI", 12), bg="#F5F5F5")
+        select_menu.pack(fill="x", pady=(5, 20))
+
+        # Campos de Edição 
+        name_label = tk.Label(container, text="Nome da Receita:", font=("Segoe UI", 14), bg="#FFFFFF")
+        name_label.pack(anchor="w")
+        name_entry = tk.Entry(container, font=("Segoe UI", 12), bg="#F5F5F5")
+        name_entry.pack(fill="x", pady=(5, 10))
+
+        ingredients_label = tk.Label(container, text="Ingredientes:", font=("Segoe UI", 14), bg="#FFFFFF")
+        ingredients_label.pack(anchor="w")
+        ingredients_text = tk.Text(container, font=("Segoe UI", 12), bg="#F5F5F5", height=6)
+        ingredients_text.pack(fill="x", pady=(5, 10))
+
+        instructions_label = tk.Label(container, text="Instruções:", font=("Segoe UI", 14), bg="#FFFFFF")
+        instructions_label.pack(anchor="w")
+        instructions_text = tk.Text(container, font=("Segoe UI", 12), bg="#F5F5F5", height=8)
+        instructions_text.pack(fill="x", pady=(5, 20))
+        
+        # Botão Salvar 
+        save_btn = tk.Button(
+            container, text="Salvar Alterações", font=("Segoe UI", 14), bg="#4CAF50", fg="#ffffff", state="disabled",
+            command=lambda: self.handle_update_recipe(name_entry, ingredients_text, instructions_text)
+        )
+        save_btn.pack(fill="x", pady=(10,0))
+        
+        back_btn = tk.Button(
+            container, text="Voltar para o Menu Principal", font=("Segoe UI", 14), bg="#f44336", fg="#ffffff",
+            command=lambda: self.show_screen(self.main_menu_screen)
+        )
+        back_btn.pack(fill="x", pady=(10,0))
+
+        # Associa a função de preencher os campos à mudança no menu de seleção
+        selected_recipe_var.trace_add("write", 
+            lambda *args: self.on_recipe_selected_for_edit(
+                selected_recipe_var, name_entry, ingredients_text, instructions_text, save_btn
+            )
+        )
+
+    # Desenhando a tela de adicionar receita
     def add_recipe_screen(self):
         label = tk.Label(self.root, bg= "#FFFFFF", text="Adicione sua receita ao MyRecipe", font=("Segoe UI", 22, "bold"))
         label.pack(pady=20)
@@ -334,7 +455,7 @@ class View:
         )
         back_btn.pack(fill="x", pady=(10,0))
 
-    #desenhando a tela de plano de refeição
+    # Desenhando a tela de plano de refeição
     def add_meal_plan_screen(self):
         label = tk.Label(self.root, bg= "#FFFFFF", text="Adicione Seu Plano de Refeição", font=("Segoe UI", 22, "bold"))
         label.pack(pady=20)
@@ -412,7 +533,7 @@ class View:
         )
         back_btn.pack(fill="x", pady=(10,0))
     
-    #desenhando a tela de visualização do plano de refeição
+    # Desenhando a tela de visualização do plano de refeição
     def meal_plan_calendar_screen(self):
         label = tk.Label(self.root, bg="#FFFFFF", text="Calendário de Plano de Refeição", font=("Segoe UI", 22, "bold"))
         label.pack(pady=20)

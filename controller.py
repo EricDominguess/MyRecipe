@@ -16,7 +16,14 @@ class Controller:
     def get_recipe_controller(self, recipe_id):
         return self.model.get_recipe(recipe_id)
     
-    def update_recipe_controller(self, recipe_id, update_data):
+    def update_recipe_controller(self, recipe_id, name, ingredients, instructions):
+        # Monta o dicionário com os dados atualizados
+        update_data = {
+            "Nome": name,
+            "Ingredientes": ingredients,
+            "Instrucoes": instructions
+        }
+        # Passa para o model executar a atualização
         return self.model.update_recipe(recipe_id, update_data)
     
     def delete_recipe_controller(self, recipe_id):
